@@ -5,6 +5,8 @@ PowerProvider: A toolkit to manipulate WMI. This toolkit provides functionality 
 * Create static classes for file storage
 * Remote Install WMI Providers
 
+Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuju/WheresMyImplant/
+
 ### Methods
 * **Class Duplication**
   * Invoke-WMIDuplicateClass
