@@ -46,3 +46,12 @@ Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuj
     * Install-WMIProvider -LocalLibraryLocation C:\WheresMyImplant.dll -ComputerName $ComputerName -Credential $Credential
   * **Uninstall-WMIProviderExtention**
     * Uninstall-WMIProvider -ProviderName WheresMyImplant -ClassName Win32_Implant C:\WheresMy -ComputerName $ComputerName -Credential $Credential
+
+
+### Author, Contributors, and License
+
+Author: Alexander Leary (@0xbadjuju), NetSPI - 2017
+
+License: BSD 3-Clause
+
+Required Dependencies: None
