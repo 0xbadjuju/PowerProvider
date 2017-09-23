@@ -22,7 +22,7 @@ Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuj
     * Invoke-WMIRemoteExtract -PayloadName Payload.exe -Destination $Destination -ComputerName  $ComputerName -Credential $Credential
 
 #### File Storage
-  * **New-WMIFSClass
+  * **New-WMIFSClass**
     * New-WMIFSClass -ComputerName $ComputerName -Credential $Credential
   * **ConvertTo-Base64**
     * $File = ConvertTo-Base64 -FileName C:\Payload.exe -Inject
